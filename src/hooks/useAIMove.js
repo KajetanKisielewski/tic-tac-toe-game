@@ -8,8 +8,6 @@ const useAIMove = (apiKey) => {
         setLoading(true);
         setError(null);
 
-        console.log('board', board)
-
         try {
             const prompt = `Aktualna plansza to ${JSON.stringify(board)}. Zwróć tylko numer indeksu (od 0 do 8), na którym powinienem postawić "O". Nie podawaj żadnych innych informacji.`;
 
