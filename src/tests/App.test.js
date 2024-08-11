@@ -10,17 +10,20 @@ describe('App component', () => {
         expect(titleElement).toBeInTheDocument();
     });
 
-    it('renders Start Game button', () => {
+    it('renders Select Game Mode buttons', () => {
         render(<App />);
 
-        const startButton = screen.getByText(/Start Game/i);
-        expect(startButton).toBeInTheDocument();
+        const HvsHButton = screen.getByText(/Human vs Human/i);
+        const HvsAIButton = screen.getByText(/Human vs AI/i);
+
+        expect(HvsHButton).toBeInTheDocument();
+        expect(HvsAIButton).toBeInTheDocument();
     });
 
     it('transitions to playing state when Start Game is clicked', () => {
         render(<App />);
 
-        const startButton = screen.getByText(/Start Game/i);
+        const startButton = screen.getByText(/Human vs Human/i);
         fireEvent.click(startButton);
 
         expect(screen.getByText(/Player's turn: X/i)).toBeInTheDocument();
@@ -29,7 +32,7 @@ describe('App component', () => {
     it('displays winner message when a player wins', () => {
         render(<App />);
 
-        const startButton = screen.getByText(/Start Game/i);
+        const startButton = screen.getByText(/Human vs Human/i);
         fireEvent.click(startButton);
 
         const squares = screen.getAllByRole('button');
@@ -45,7 +48,7 @@ describe('App component', () => {
     it('displays draw message when the game ends in a draw', () => {
         render(<App />);
 
-        const startButton = screen.getByText(/Start Game/i);
+        const startButton = screen.getByText(/Human vs Human/i);
         fireEvent.click(startButton);
 
         const squares = screen.getAllByRole('button');
@@ -65,13 +68,12 @@ describe('App component', () => {
     it('resets the game when Reset Game is clicked', () => {
         render(<App />);
 
-        const startButton = screen.getByText(/Start Game/i);
+        const startButton = screen.getByText(/Human vs Human/i);
         fireEvent.click(startButton);
 
         const resetButton = screen.getByText(/Reset Game/i);
         fireEvent.click(resetButton);
 
         expect(screen.queryByText(/Player's turn: X/i)).not.toBeInTheDocument();
-        expect(screen.getByText(/Are you ready for the game/i)).toBeInTheDocument();
     });
 });
