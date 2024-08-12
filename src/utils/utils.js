@@ -1,17 +1,42 @@
-export const createEmptyBoard = () => Array(9).fill(null);
+export const createEmptyBoard = (size = 3) => {
+    return Array(size * size).fill(null);
+};
 
-export const checkWinner = (board) => {
-    const winningCombinations = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6]
-    ];
+export const checkWinner = (board, gridSize) => {
+    const winningCombinations = [];
 
-    for (const [a, b, c] of winningCombinations) {
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            return board[a];
+    for (let row = 0; row < gridSize; row++) {
+        const rowCombination = [];
+        for (let col = 0; col < gridSize; col++) {
+            rowCombination.push(row * gridSize + col);
+        }
+        winningCombinations.push(rowCombination);
+    }
+
+    for (let col = 0; col < gridSize; col++) {
+        const colCombination = [];
+        for (let row = 0; row < gridSize; row++) {
+            colCombination.push(row * gridSize + col);
+        }
+        winningCombinations.push(colCombination);
+    }
+
+    const diag1Combination = [];
+    const diag2Combination = [];
+
+    for (let i = 0; i < gridSize; i++) {
+        diag1Combination.push(i * (gridSize + 1));
+        diag2Combination.push((i + 1) * (gridSize - 1));
+    }
+
+    winningCombinations.push(diag1Combination, diag2Combination);
+
+    for (const combination of winningCombinations) {
+        if (combination.every(index => board[index] && board[index] === board[combination[0]])) {
+            return board[combination[0]];
         }
     }
 
     return board.includes(null) ? null : 'draw';
 };
+

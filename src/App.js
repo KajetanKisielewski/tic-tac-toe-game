@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import { useMachine } from "@xstate/react";
 
 import Board from "./components/Board";
@@ -10,15 +10,15 @@ const apiKey = process.env.REACT_APP_API_KEY
 
 const App = () => {
     const [snapshot, send] = useMachine(gameMachine);
-    const { makeMove, loading } = useAIMove(apiKey);
     const [gameMode, setGameMode] = useState(null);
+    const { makeMove, loading } = useAIMove(apiKey);
 
     const isAITurn = gameMode === 'ai' && !snapshot.context.isXNext && snapshot.matches('playing');
 
     useEffect(() => {
         if (isAITurn) {
             const aiMove = async () => {
-                const move = await makeMove(snapshot.context.squares);
+                const move = await makeMove(snapshot.context.squares, snapshot.context.gridSize);
                 const isValidMove = move !== null && move >= 0 && move < snapshot.context.squares.length;
 
                 if (isValidMove) {
@@ -28,7 +28,8 @@ const App = () => {
 
             aiMove();
         }
-    }, [isAITurn, makeMove, send, snapshot.context.squares]);
+    }, [isAITurn, makeMove, send, snapshot.context.gridSize, snapshot.context.squares]);
+
 
     const handleGameModeSelect = (mode) => {
         setGameMode(mode);
@@ -48,6 +49,24 @@ const App = () => {
         setGameMode(null);
     }
 
+    const handleNextRound = () => {
+        send({ type: 'NEXT_ROUND' })
+    };
+
+    const renderNavButtons = () => {
+        if (snapshot.matches('won') || snapshot.matches('draw')) {
+            return (
+                <>
+                    {snapshot.context.round < 3 && (
+                        <StartButton onClick={handleNextRound}>Next Round</StartButton>
+                    )}
+                    <ResetButton onClick={handleReset}>Reset Game</ResetButton>
+                </>
+            );
+        }
+        return <ResetButton onClick={handleReset}>Reset Game</ResetButton>;
+    };
+
     const status = snapshot.matches('won')
         ? `Winner: ${snapshot.context.isXNext ? 'O' : 'X'}`
         : snapshot.matches('draw')
@@ -65,9 +84,9 @@ const App = () => {
                 </>
             ) : (
                 <>
-                    <Board squares={snapshot.context.squares} onSquareClick={handleSquareClick} />
+                    <Board squares={snapshot.context.squares} onSquareClick={handleSquareClick} gridSize={snapshot.context.gridSize}/>
                     <StatusText>{status}</StatusText>
-                    <ResetButton onClick={handleReset}>Reset Game</ResetButton>
+                    {renderNavButtons()}
                 </>
             )}
         </AppContainer>

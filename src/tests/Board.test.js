@@ -13,14 +13,14 @@ describe('Board Component', () => {
     });
 
     it('renders 9 squares', () => {
-        render(<Board squares={squares} onSquareClick={handleSquareClick} />);
+        render(<Board squares={squares} onSquareClick={handleSquareClick} gridSize={3}/>);
 
         const squareButtons = screen.getAllByRole('button');
         expect(squareButtons.length).toBe(9);
     });
 
     it('calls onSquareClick when a square is clicked', () => {
-        render(<Board squares={squares} onSquareClick={handleSquareClick} />);
+        render(<Board squares={squares} onSquareClick={handleSquareClick} gridSize={3}/>);
 
         const firstSquare = screen.getAllByRole('button')[0];
         fireEvent.click(firstSquare);

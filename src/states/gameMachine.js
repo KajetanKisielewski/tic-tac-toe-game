@@ -2,12 +2,18 @@ import { assign, createMachine } from 'xstate';
 
 import { checkWinner, createEmptyBoard } from "../utils/utils";
 
+const getGridSize = (round) => {
+    return round + 2
+}
+
 const gameMachine = createMachine({
     id: 'game',
     initial: 'idle',
     context: {
-        squares: createEmptyBoard(),
+        squares: createEmptyBoard(3),
         isXNext: true,
+        gridSize: 3,
+        round: 1,
     },
     states: {
         idle: {
@@ -32,6 +38,11 @@ const gameMachine = createMachine({
         },
         won: {
             on: {
+                NEXT_ROUND: {
+                    target: 'playing',
+                    actions: 'nextRound',
+                    guard: 'isFinalRound'
+                },
                 RESET: {
                     target: 'idle',
                     actions: 'resetGame'
@@ -40,6 +51,11 @@ const gameMachine = createMachine({
         },
         draw: {
             on: {
+                NEXT_ROUND: {
+                    target: 'playing',
+                    actions: 'nextRound',
+                    guard: 'isFinalRound'
+                },
                 RESET: {
                     target: 'idle',
                     actions: 'resetGame'
@@ -60,9 +76,22 @@ const gameMachine = createMachine({
                 isXNext: !context.isXNext,
             };
         }),
+        nextRound: assign(({ context }) => {
+            const newRound = context.round + 1;
+            const newGridSize = getGridSize(newRound);
+
+            return {
+                squares: createEmptyBoard(newGridSize),
+                isXNext: true,
+                gridSize: newGridSize,
+                round: newRound
+            };
+        }),
         resetGame: assign({
-            squares: () => createEmptyBoard(),
-            isXNext: () => true,
+            squares: () => createEmptyBoard(3),
+            isXNext: true,
+            gridSize: 3,
+            round: 1
         })
     },
     guards: {
@@ -70,12 +99,13 @@ const gameMachine = createMachine({
             return !context.squares[event.index] && !checkWinner(context.squares);
         },
         isWon: ({ context}) => {
-            const winner = checkWinner(context.squares);
+            const winner = checkWinner(context.squares, context.gridSize)
             return winner !== null && winner !== 'draw';
         },
         isDraw: ({ context}) => {
-            return checkWinner(context.squares) === 'draw';
+            return checkWinner(context.squares, context.gridSize) === 'draw';
         },
+        isFinalRound: ({ context }) => context.round < 3
     },
 });
 
